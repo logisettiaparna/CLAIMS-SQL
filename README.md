@@ -66,7 +66,7 @@ values
 ##### 1.  Construct a query that ranks US states by paid amount.
 
 ```jql
--- no partition by in RANK..so that it can rank all rows as one categor
+# no partition by in RANK..so that it can rank all rows as one category
 
 SELECT 
  us_state,
