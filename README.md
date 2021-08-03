@@ -66,7 +66,7 @@ values
 ##### 1.  Construct a query that ranks US states by paid amount.
 
 ```sh
-=> ## no partition by in RANK..so that it can rank all rows as one categor
+## no partition by in RANK..so that it can rank all rows as one categor
 
 SELECT 
  us_state,
@@ -85,28 +85,26 @@ select A.Allowed_amount as paid_amount,B.State as us_state from CLAIMS A INNER J
 
 select A.Allowed_amount as paid_amount,B.State as us_state from CLAIMS A INNER JOIN PROVIDER B ON A.Provider_id = B.provider_id order by paid_amount desc
 
-#Above SQL would result in multiple rows with same cities where aggregation not took place. This will not allow user to rank it correctly. Therefore Aggregation needs to be implemented and also RANK function would help end user to tag the ranks. 
+Above SQL would result in multiple rows with same cities where aggregation not took place. This will not allow user to rank it correctly. Therefore Aggregation needs to be implemented and also RANK function would help end user to tag the ranks. 
 
-## Note: With give data, no EMPTY Strings occured, but if at all empty string exists, I would filter with "where" condition first place to ensure I have clean data(avoid mising info data)
+#Note#: With give data, no EMPTY Strings occured, but if at all empty string exists, I would filter with "where" condition first place to ensure I have clean data(avoid mising info data)
 ```
 
 ##### 3.  During the above analysis, you notice that sum(paid_amount) for all of the states together is a lot lower than expected (e.g. Florida total is lower than Kansas). What are some possible explanations, and what approach would you take to address this issue?
 
 ```sh
-#Assuming the question: With assumption of both PREPAY and POSTPAY exists in CLAIMS table, 
-Florida has two different records with column 'Adj_num'(00,01). 
-After post adjudication, FL state might went to negative paid amount(overpayment). 
-We can choose the ranking on paid_amount either by PREPAY or POSTPAY by filtering Adj_num'
+#Assuming the question: 
+With assumption of both PREPAY and POSTPAY exists in CLAIMS table, Florida has two different records with column 'Adj_num'(00,01). After post adjudication, FL state might went to negative paid amount(overpayment). We can choose the ranking on paid_amount either by PREPAY or POSTPAY by filtering Adj_num'
 ```
 
 ##### 4.  Your colleagues decide that the above analysis would be easier to understand if there weren’t so many weird states (e.g. PR, GU, VI). How would you lump all of the commonwealth territories into “ISLANDS”.
 
 ```sh
-#I would introduce an New column with CASE condition in SQL. This column would act like another State column except takes value 'island' if state value fall in  commonwealth territories
-CASE 
-      WHEN state IN(PR, GU, VI) THEN 'island'
-      ELSE state
-  END as 'state2'
+I would introduce an New column with CASE condition in SQL. This column would act like another State column except takes value 'island' if state value fall in  commonwealth territories
+#CASE 
+#      WHEN state IN(PR, GU, VI) THEN 'island'
+#      ELSE state
+#  END as 'state2'
 ```
 
 ##### 5.  For the same tables write a query to find the names of the providers with the two highest charges for each procedure.
