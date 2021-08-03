@@ -65,8 +65,8 @@ values
 
 ##### 1.  Construct a query that ranks US states by paid amount.
 
-```sh
-## no partition by in RANK..so that it can rank all rows as one categor
+```jql
+-- no partition by in RANK..so that it can rank all rows as one categor
 
 SELECT 
  us_state,
@@ -80,7 +80,7 @@ select A.Allowed_amount as paid_amount,B.State as us_state from CLAIMS A INNER J
 
 ##### 2.  In the results for (1) you notice state CA near the top, and also states Ca and 94. Why might this happen, and what do you do next? After fixing this, you also notice a pretty high ranking next to an “empty string” state. What does this mean, and what might you do next to address this issue?
 
-```sh
+```text
 #Assuming the question(as question has Ca and 94 states but data don't hold it) 
 
 select A.Allowed_amount as paid_amount,B.State as us_state from CLAIMS A INNER JOIN PROVIDER B ON A.Provider_id = B.provider_id order by paid_amount desc
@@ -92,14 +92,14 @@ Above SQL would result in multiple rows with same cities where aggregation not t
 
 ##### 3.  During the above analysis, you notice that sum(paid_amount) for all of the states together is a lot lower than expected (e.g. Florida total is lower than Kansas). What are some possible explanations, and what approach would you take to address this issue?
 
-```sh
+```text
 #Assuming the question: 
 With assumption of both PREPAY and POSTPAY exists in CLAIMS table, Florida has two different records with column 'Adj_num'(00,01). After post adjudication, FL state might went to negative paid amount(overpayment). We can choose the ranking on paid_amount either by PREPAY or POSTPAY by filtering Adj_num'
 ```
 
 ##### 4.  Your colleagues decide that the above analysis would be easier to understand if there weren’t so many weird states (e.g. PR, GU, VI). How would you lump all of the commonwealth territories into “ISLANDS”.
 
-```sh
+```text
 I would introduce an New column with CASE condition in SQL. This column would act like another State column except takes value 'island' if state value fall in  commonwealth territories
 #CASE 
 #      WHEN state IN(PR, GU, VI) THEN 'island'
@@ -109,7 +109,7 @@ I would introduce an New column with CASE condition in SQL. This column would ac
 
 ##### 5.  For the same tables write a query to find the names of the providers with the two highest charges for each procedure.
 
-```sh
+```jql
 select P.Provider_name,clm.CPTCode,clm.total_billed,bill_rank from 
 (select sum(Billed_amount) as total_billed,
        CPTCode,
@@ -121,26 +121,26 @@ select P.Provider_name,clm.CPTCode,clm.total_billed,bill_rank from
 
 ##### 6.  Your colleague points out that PMPM on this data set looks 30% higher than expected, based on financial data supplied by the customer. What might be some possible explanations for this, and how would you attempt to explain or reconcile this with your data?
 
-```sh
+```text
 I would check the service_dates whether appropriate to the "financial year" that we are calculating(needs to be same financial year supplied by the customer). If we have more than that specific year, filter the data on service_date to that financial year and get the distinct count of "Member_id" and multiply by 12(12 months in an year). total_cost/above calculation, gives you PMPM approx which can be verified.
 ```
 
 ##### 7.  Are all three doing the same thing? Explain.
 
 
-```sh
+```text
 Yes. Basically alll queries are targeting to avoid "Null" and "empty string" provider names.
 ```
 
 ##### 8.  How do you find all patients that have multiple different distinct dob values (e.g., John Doe has two different values for dob).
 
-```sh
+```text
 select patient_name,dob,count(*) from table1 group by patient_name,dob having count(*)=1
 ```
 ##### 9.  Will these return same results? Does one return more rows than the other? Explain.
 
 
-```sh
+```text
 Both queries return different counts. First query return More records(row count EQUAL to LEFT TABLE mostly) as the 'authorization_number' is checked for empty string before/while the left join occurs. If empty 'authorization_number' not exists all data comes as NULL. If not, data populates for empty 'authorization_number' column and rest will be NULL
 
 While second query WHERE conition is applied after LEFT JOIN executes and as a result only specified data(authorization_number = '') is filtered if exists. If not, zero records occur.
